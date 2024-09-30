@@ -14,7 +14,7 @@ Lade die Dateien aus deinen Ilias-Kursen mit nur einem Klick herunter.
 
 :heavy_check_mark: Download von Dateien
 
-:heavy_check_mark: Download von Übungsaufgaben (Abgabeübungen)
+:heavy_check_mark: ~~Download von Übungsaufgaben (Abgabeübungen)~~ **Currently not working!**
 
 :heavy_check_mark: Bei Datei-Aktualisierungen im Ilias wird die lokale Kopie umbenannt & die Datei erneut heruntergeladen.
 
