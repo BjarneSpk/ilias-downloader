@@ -2,9 +2,8 @@
 
 # Enter ILIAS username and password here
 # Modify here
-ILIAS_USERNAME="mm1234s"
-ILIAS_PASSWORD="password"
-
+ILIAS_USERNAME="st123456"
+ILIAS_PASSWORD="123456"
 
 # Choose a relative path to store the file in every data directory or an absolute path for one single file
 # Keep it like this if you're not sure
@@ -30,13 +29,13 @@ do_login
 # You can download the hole course or just specific folders from a course.
 
 # Preset your Homefolder
-MY_STUDIES_FOLDER="/E/IliasTest"
+MY_STUDIES_FOLDER="/A/B/C"
 
 # Copy for every course/folder you want to download
 # Modify here
-fetch_folder "123456" "$MY_STUDIES_FOLDER/Digitale Services für die Energie- und Mobolitätswende" 
+fetch_folder "3680095" "$MY_STUDIES_FOLDER/Modellierung"
 
-fetch_folder "987654" "$MY_STUDIES_FOLDER/Energiedatenanalyse - statistische Methoden" 
+fetch_folder "987654" "$MY_STUDIES_FOLDER/Energiedatenanalyse - statistische Methoden"
 
 # Don't modify (awaiting completion of all fetch_folders)
 wait
