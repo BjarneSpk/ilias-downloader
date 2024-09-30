@@ -32,13 +32,6 @@ ILIAS_HOME="ilias.php?baseClass=ilDashboardGUI&cmd=jumpToSelectedItems"
 ILIAS_LOGOUT="logout.php?lang=de"
 ILIAS_EXC_BUTTON_DESC="Download"
 
-# .config example:
-#   ILIAS_URL="https://www.ili.fh-aachen.de/"
-#   ILIAS_PREFIX="elearning"
-#   ILIAS_LOGIN_GET="login.php?client_id=elearning&lang=de"
-#   ILIAS_HOME="ilias.php?baseClass=ilPersonalDesktopGUI&cmd=jumpToSelectedItems"
-#   ILIAS_LOGOUT="logout.php?lang=de"
-
 # Prefix für lokalen Ordernamen von Übungen
 EXC_FOLDER_PREFIX="exc "
 
