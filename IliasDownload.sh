@@ -18,13 +18,19 @@
 #
 # Für FH Aachen angepasst von Paul Krüger, Oktober 2020.
 #
+# Für Uni Stuttgart angepasst von Bjarne Spiekermann, September 2024.
 
 if [ -z "$COOKIE_PATH" ]; then
     COOKIE_PATH=/tmp/ilias-cookies.txt
 fi
 
-# Load env-variables from config
-. .config
+# Config for Uni Stuttgart
+ILIAS_URL="https://ilias3.uni-stuttgart.de/"
+ILIAS_PREFIX="Uni_Stuttgart"
+ILIAS_LOGIN_GET="login.php?client_id=Uni_Stuttgart&cmd=force_login&lang=en"
+ILIAS_HOME="ilias.php?baseClass=ilDashboardGUI&cmd=jumpToSelectedItems"
+ILIAS_LOGOUT="logout.php?lang=de"
+ILIAS_EXC_BUTTON_DESC="Download"
 
 # .config example:
 #   ILIAS_URL="https://www.ili.fh-aachen.de/"
@@ -228,23 +234,28 @@ function fetch_folder {
     fi
     local HISTORY_CONTENT=$(cat "$HISTORY_FILE")
 
-    echo "Fetching folder $1 to $2"
+    echo "Fetching $1 to $2"
 
-    echo "$1" | do_grep "^[0-9]*$" >/dev/null
+    echo "$1" | do_grep "^(fold|crs)/[0-9]*$" >/dev/null
     if [ $? -eq 0 ]; then
-        local CONTENT_PAGE=$(ilias_request "go/fold/$1")
+        local CONTENT_PAGE=$(ilias_request "go/$1")
+    else
+        return
     fi
 
     # Fetch Subfolders recursive (async)
-    local ITEMS=$(echo "$CONTENT_PAGE" | do_grep "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/fold/[0-9]*/download")
-    echo $ITEMS
-    for folder in $ITEMS; do
-        local FOLDER_NAME=$(echo "$CONTENT_PAGE" | do_grep "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}${folder}\"[^>]*>\K[^<]*")
+    # somewhat ugly but for some reason piping didn't work
+    echo $CONTENT_PAGE >"$2.html"
+    echo "$2.html created"
+    local FOLDERS=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/fold/[0-9]*" "$2.html")
+    echo $FOLDERS
+    for folder in $FOLDERS; do
+        local FOLDER_NAME=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}${folder}\"[^>]*>\K[^<]*" "$2.html")
 
         # Replace / by - character
         local FOLDER_NAME=$(echo "${FOLDER_NAME//\//-}" | head -1)
         echo "Entering folder $FOLDER_NAME"
-        local FOLD_NUM=$(echo "$folder" | do_grep "fold/\K[0-9]*")
+        local FOLD_NUM=$(echo "$folder" | do_grep "go/\K.*")
         if [ ! -e "$2/$FOLDER_NAME" ]; then
             mkdir "$2/$FOLDER_NAME"
         fi
@@ -252,20 +263,18 @@ function fetch_folder {
     done
 
     # Files
-    # somewhat ugly but for some reason piping didn't work
-    echo $CONTENT_PAGE >content.html
-    local ITEMS=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\">[\s\S]*?<a href=\"${ILIAS_URL}\Kgo/file/[0-9]*/download" content.html)
-    rm content.html
-
-    for file in $ITEMS; do
+    local FILES=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/file/[0-9]*/download" "$2.html")
+    echo $FILES
+    for file in $FILES; do
         local DO_DOWNLOAD=1
         local NUMBER=$(echo "$file" | do_grep "[0-9]*")
         local ECHO_MESSAGE="[$1-$NUMBER]"
 
         # find the box around the file we are processing.
-        local ITEM=$(echo $CONTENT_PAGE | do_grep "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}${file}.*<div style=\"clear:both;\"></div>")
+        local ITEM=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}${file}.*<div style=\"clear:both;\"></div>")
         # extract version information from file. (Might be empty)
-        local VERSION=$(echo "$ITEM" | ggrep -o -P '(?<=<span class=\"il_ItemProperty\"> ).*?(?=&nbsp;&nbsp;</span>.*)') | sed -n '3p'
+        # TODO not working
+        local VERSION=$(echo "$ITEM" | ggrep -o -P '(?<=<span class=\"il_ItemProperty\"> ).*?(?=&nbsp;&nbsp;</span>.*)' "$2.html") | sed -n '3p'
         # build fileId
         local FILEID=$(echo "$file $VERSION" | xargs)
 
@@ -322,10 +331,10 @@ function fetch_folder {
 
     # Übungen
 
-    local ITEMS=$(echo $CONTENT_PAGE | do_grep "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}\Kgoto_${ILIAS_PREFIX}_exc_[0-9]*.html")
+    local ITEMS=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}\Kgoto_${ILIAS_PREFIX}_exc_[0-9]*.html" "$2.html")
 
     for exc in $ITEMS; do
-        local EXC_NAME=$(echo "$CONTENT_PAGE" | do_grep "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}${exc}\"[^>]*>\K[^<]*")
+        local EXC_NAME=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}${exc}\"[^>]*>\K[^<]*" "$2.html")
 
         # Replace / character
         local EXC_NAME=${EXC_NAME//\//-}
@@ -334,8 +343,9 @@ function fetch_folder {
         if [ ! -e "$2/$EXC_FOLDER_PREFIX$EXC_NAME" ]; then
             mkdir "$2/$EXC_FOLDER_PREFIX$EXC_NAME"
         fi
-        fetch_exc "$EXC_NUM" "$2/$EXC_FOLDER_PREFIX$EXC_NAME"
+        #fetch_exc "$EXC_NUM" "$2/$EXC_FOLDER_PREFIX$EXC_NAME"
     done
+    rm "$2.html"
 
     wait
 

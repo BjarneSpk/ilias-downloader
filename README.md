@@ -1,11 +1,9 @@
-# Ilias (1 click) Downloader
+# Ilias Downloader Uni Stuttgart
 
 Lade die Dateien aus deinen Ilias-Kursen mit nur einem Klick herunter.
-Upgedated auf ILIAS 9.
 
 ## TODO
 
-- bis jetzt muss jeder Ordner einzeln angegeben werden, es kann noch nicht der gesamte kurs geladen werden
 - Support für Download von Übungsabgaben hinzufügen, seit ILIAS9 komplizierter geworden
 
 ## Features
@@ -20,23 +18,16 @@ Upgedated auf ILIAS 9.
 
 :heavy_check_mark: Bei Datei-Aktualisierungen im Ilias wird die lokale Kopie umbenannt & die Datei erneut heruntergeladen.
 
-:heavy_check_mark: Click & Run - Synchronisation mit nur einem Klick
-
-:heavy_check_mark: Konfiguriert für Ilias der FH-Aachen
-
-:heavy_check_mark: Supports Ilias 5, 6 & 7!
-
-## Supported Universities
-
-- Uni Stuttgart
+:heavy_check_mark: Supports Ilias 9!
 
 ## How to use
 
 ### Vorbereitungen
 
-1. Bash zur Ausführung von Shell (`.sh`) Scripten
-   - **Linux**: Kann das; Keine Installation notwendig, **da für macOS optimiert muss in `IliasDownload.sh` `ggrep` zu `grep` refactored werden**
-   - **Mac**: Kann das(?); ggrep installieren, bspw. über Homebrew (brew install grep)
+1. Bash
+2. grep mit Perl Regex-Support
+   - macOS: GNU Grep (ggrep) installieren
+   - Linux: ggrep in IliasDownload.sh zu grep refactoren
 
 ### Konfiguration
 
@@ -85,22 +76,11 @@ Das Skript ist nun einsatzbereit.
 
 ### Ausführung
 
-Doppelklick aufs `IliasDownloadInit.sh`-Skript. Warten. Fertig.
-
-**Tipp:** Erstelle eine Verknüpfung auf dem Desktop. So lässt sich das Script noch einfacherer benutzen.
+```sh
+./IliasDownloadInit.sh
+```
 
 ## FAQ
-
-#### Meine Uni ist nicht dabei. Was nun?
-
-Damit ich deine Uni hinzufügen kann, brauche ich einige Informationen über das Ilias deiner Universität.
-
-- URL zur Login Seite des Ilias
-- URL der Homepage nach erfolgreichem Login
-- URL eines beliebigen Kurses, den du herunterladen möchtest
-- URL der Logout Seite (die Seite nach Klick auf den Logout-Button)
-
-Alternativ kannst du dir die [.config-Datei](https://github.com/V3lop5/ilias-downloader/blob/main/.config) angucken und selber die Konfiguration vornehmen. Stelle gerne einen PR und teile die Konfiguration mit anderen.
 
 #### Es werden keine Dateien heruntergeladen. Was mache ich falsch?
 
