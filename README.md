@@ -38,7 +38,7 @@ Im oberen Teil müssen **Benutzername und Passwort für Ilias** eingetragen werd
 ```shell
 # Enter ILIAS username and password here
 # Modify here
-ILIAS_USERNAME="mm1234s"
+ILIAS_USERNAME="st12345"
 ILIAS_PASSWORD="password"
 ```
 
@@ -51,28 +51,27 @@ MY_STUDIES_FOLDER="/E/IliasTest"
 
 Danach müssen alle **Ilias-Kurse oder Ilias-Ordner** eingetragen werden, die heruntergeladen werden sollen. Zu der Kurs- oder Ordner-Nummer von Ilias muss jeweils ein lokales Verzeichnis angegeben werden. Es empiehlt sich die Verwendung von absoluten Pfaden und dem Basis-verzeichnis.
 
-Die Kurs- oder Ordner-Nummer versteckt sich in der Ilias-URL.
-
 ```shell
 # Take the id of the folder/course out of the URL, e.g.
-# https://www.ili.fh-aachen.de/goto_elearning_crs_604137.html
-#                                                 ^^^^^^
+#
+# https://ilias3.uni-stuttgart.de/go/crs/3633981
+#                                    ^^^^^^^^^^^
 # or
-# https://www.ili.fh-aachen.de/goto_elearning_fold_604137.html
-#                                                  ^^^^^^
+#
+# https://ilias3.uni-stuttgart.de/go/fold/3633981
+#                                    ^^^^^^^^^^^^
 #
 # You find this link at the bottom of every folder page.
 # Subfolders and exercises are automatically downloaded, too.
 # You need to use absolute paths for local folders!
-
+#
+# You can download the whole course or just specific folders from a course.
 # Copy for every course/folder you want to download
 # Modify here
-fetch_folder "593215" "$MY_STUDIES_FOLDER/Digitale Services für die Energie- und Mobolitätswende"
+fetch_folder "crs/3633981" "$MY_STUDIES_FOLDER/Modellierung"
 ```
 
 Anmerkung: Die hier eingetragenen Download-Ordner müssen existieren. Falls der Download-Ordner nicht existiert, wird das Skript keine Dateien herunterladen. Dies dient zum Schutz vor falschen Konfigurationen. (Eventuelle Unterordner im Ilias-Kurs/Ilias-Ordner werden beim Synchronisieren automatisch erstellt.)
-
-Das Skript ist nun einsatzbereit.
 
 ### Ausführung
 
@@ -96,8 +95,6 @@ Das Script speichert sich in dieser Datei welche Dokumente bereits heruntergelad
 Der Name dieser Datei kann mit der Variable `HISTORY_FILE` in dem Script `IliasDownloadInit.sh` geändert werden.
 
 #### Einzelne Dateien werden nicht heruntergeladen.
-
-Dies kann verschiedene Gründe haben. Kontaktiere mich gerne & ich versuche zu helfen.
 
 Ein bekanntes Problem entsteht durch zulange Dateinamen. Der Dateiname inklusive Pfad darf maximal 255 (?) Zeichen lang sein. Versuche im `IliasDownloadInit.sh` kürzere Pfade für deine Ordner anzugeben.
 

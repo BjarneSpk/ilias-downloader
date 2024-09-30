@@ -28,7 +28,7 @@ do_login
 # Subfolders and exercises are automatically downloaded, too.
 # You need to use absolute paths for local folders!
 #
-# You can download the hole course or just specific folders from a course.
+# You can download the whole course or just specific folders from a course.
 
 # Preset your Homefolder
 MY_STUDIES_FOLDER="/A/B/C"
