@@ -2,10 +2,6 @@
 
 Lade die Dateien aus deinen Ilias-Kursen mit nur einem Klick herunter.
 
-## TODO
-
-- Support für Download von Übungsabgaben hinzufügen, seit ILIAS9 komplizierter geworden
-
 ## Features
 
 :heavy_check_mark: Synchronisierung von Ilias-Kursen oder Ilias-Ordnern in einem beliebigen Ordner
@@ -14,7 +10,7 @@ Lade die Dateien aus deinen Ilias-Kursen mit nur einem Klick herunter.
 
 :heavy_check_mark: Download von Dateien
 
-:heavy_check_mark: ~~Download von Übungsaufgaben (Abgabeübungen)~~ **Currently not working!**
+:heavy_check_mark: Download von Übungsaufgaben (Abgabeübungen)
 
 :heavy_check_mark: Bei Datei-Aktualisierungen im Ilias wird die lokale Kopie umbenannt & die Datei erneut heruntergeladen.
 

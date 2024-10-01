@@ -33,7 +33,7 @@ ILIAS_LOGOUT="logout.php?lang=de"
 ILIAS_EXC_BUTTON_DESC="Download"
 
 # Prefix für lokalen Ordernamen von Übungen
-EXC_FOLDER_PREFIX="exc "
+EXC_FOLDER_PREFIX="exc"
 
 # DON'T TOUCH FROM HERE ON
 
@@ -168,50 +168,46 @@ function fetch_exc {
 
     echo "Fetching exc $1 to $2"
 
-    local CONTENT_PAGE=$(ilias_request "go/fold/$1")
-
-    # Fetch all Download Buttons from this page
-    local ITEMS=$(echo "$CONTENT_PAGE" | do_grep "<a href=\"\K[^\"]*(?=\">$ILIAS_EXC_BUTTON_DESC)" | sed -e 's/\&amp\;/\&/g')
-
-    for file in $ITEMS; do
-        local DO_DOWNLOAD=1
-        local FILENAME=$(echo $file | do_grep "&file=\K(?=&)")
-        local ECHO_MESSAGE="[$EXC_FOLDER_PREFIX$1] Check file $FILENAME ..."
-        echo "$HISTORY_CONTENT" | ggrep "$file" >/dev/null
-        if [ $? -eq 0 ]; then
-            local ITEM=$(echo $CONTENT_PAGE | do_grep "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}${file}.*<div style=\"clear:both;\"></div>")
-            echo "$ITEM" | ggrep "geändert" >/dev/null
+    local CONTENT_PAGE=$(ilias_request "ilias.php?baseClass=ilexercisehandlergui&cmdNode=cn:ns&cmdClass=ilObjExerciseGUI&cmd=showOverview&ref_id=$1&mode=all&from_overview=1")
+    echo "$CONTENT_PAGE" >"$1.html"
+    local EXERCISES=$(ggrep -oP "<h4 class=\"il-item-title\">.?<a href=[^>]*ref_id=$1[^\"]*&ass_id=\K[0-9]*" "$1.html")
+    rm "$1.html"
+    for exc in $EXERCISES; do
+        local CONTENT_PAGE=$(ilias_request "go/exc/$1/${exc}")
+        echo $CONTENT_PAGE >"$1-${exc}.html"
+        local ITEMS=$(ggrep -oP "ilias.php[^>]*>Download" "$1-${exc}.html")
+        local ITEMS=$(echo "$ITEMS" | do_grep "ilias.php[^\"]*")
+        local EXC_NAME=$(ggrep -oP "<div class=\"panel-title\">.?<h2>\K[^<]*" "$1-${exc}.html" | tr -d '[:blank:]')
+        rm "$1-${exc}.html"
+        for file in $ITEMS; do
+            local FILENAME=$(echo $file | do_grep "&file=\K.*")
+            local ECHO_MESSAGE="[$EXC_FOLDER_PREFIX$1] Check file $FILENAME ..."
+            echo "$HISTORY_CONTENT" | ggrep "$file" >/dev/null
             if [ $? -eq 0 ]; then
-                local ECHO_MESSAGE="$ECHO_MESSAGE changed"
-                local PART_NAME="${FILENAME%.*}"
-                local PART_EXT="${FILENAME##*.}"
-                local PART_DATE=$(date +%Y%m%d-%H%M%S)
-                mv "$FILENAME" "${PART_NAME}.${PART_DATE}.${PART_EXT}"
-            else
                 local ECHO_MESSAGE="$ECHO_MESSAGE exists"
                 ((ILIAS_IGN_COUNT++))
-                DO_DOWNLOAD=0
-            fi
-        fi
-        if [ $DO_DOWNLOAD -eq 1 ]; then
-            local ECHO_MESSAGE="$ECHO_MESSAGE $FILENAME downloading..."
-
-            ilias_request "$file" "-O -J"
-            local RESULT=$?
-            if [ $RESULT -eq 0 ]; then
-                echo "$file" >>"$HISTORY_FILE"
-                ((ILIAS_DL_COUNT++))
-                local ECHO_MESSAGE="$ECHO_MESSAGE done"
-                ILIAS_DL_NAMES="${ILIAS_DL_NAMES} - ${FILENAME}
-"
             else
-                local ECHO_MESSAGE="$ECHO_MESSAGE failed: $RESULT"
-                ((ILIAS_FAIL_COUNT++))
-                ILIAS_DL_FAILED_NAMES="${ILIAS_DL_NAMES} - ${FILENAME} (failed: $RESULT)
-"
+                local ECHO_MESSAGE="$ECHO_MESSAGE $FILENAME downloading..."
+                if [ ! -d "$DIRECTORY" ]; then
+                    mkdir "$EXC_NAME"
+                fi
+                ilias_request "$file" "--output-dir $EXC_NAME -O -J"
+                local RESULT=$?
+                if [ $RESULT -eq 0 ]; then
+                    echo "$file" >>"$HISTORY_FILE"
+                    ((ILIAS_DL_COUNT++))
+                    local ECHO_MESSAGE="$ECHO_MESSAGE done"
+                    ILIAS_DL_NAMES="${ILIAS_DL_NAMES} - ${FILENAME}
+                    "
+                else
+                    local ECHO_MESSAGE="$ECHO_MESSAGE failed: $RESULT"
+                    ((ILIAS_FAIL_COUNT++))
+                    ILIAS_DL_FAILED_NAMES="${ILIAS_DL_NAMES} - ${FILENAME} (failed: $RESULT)
+                    "
+                fi
             fi
-        fi
-        echo "$ECHO_MESSAGE"
+            echo "$ECHO_MESSAGE"
+        done
     done
 
 }
@@ -239,9 +235,7 @@ function fetch_folder {
     # Fetch Subfolders recursive (async)
     # somewhat ugly but for some reason piping didn't work
     echo $CONTENT_PAGE >"$2.html"
-    echo "$2.html created"
     local FOLDERS=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/fold/[0-9]*" "$2.html")
-    echo $FOLDERS
     for folder in $FOLDERS; do
         local FOLDER_NAME=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}${folder}\"[^>]*>\K[^<]*" "$2.html")
 
@@ -257,7 +251,6 @@ function fetch_folder {
 
     # Files
     local FILES=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/file/[0-9]*/download" "$2.html")
-    echo $FILES
     for file in $FILES; do
         local DO_DOWNLOAD=1
         local NUMBER=$(echo "$file" | do_grep "[0-9]*")
@@ -324,19 +317,19 @@ function fetch_folder {
 
     # Übungen
 
-    local ITEMS=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}\Kgoto_${ILIAS_PREFIX}_exc_[0-9]*.html" "$2.html")
+    local ITEMS=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/exc/[0-9]*" "$2.html")
 
     for exc in $ITEMS; do
-        local EXC_NAME=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}${exc}\"[^>]*>\K[^<]*" "$2.html")
+        local EXC_NAME=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}${exc}\"[^>]*>\K[^<]*" "$2.html")
 
         # Replace / character
         local EXC_NAME=${EXC_NAME//\//-}
         echo "Entering exc $EXC_NAME"
-        local EXC_NUM=$(echo "$exc" | do_grep "exc_\K[0-9]*")
+        local EXC_NUM=$(echo "$exc" | do_grep "go/exc/\K[0-9]*")
         if [ ! -e "$2/$EXC_FOLDER_PREFIX$EXC_NAME" ]; then
             mkdir "$2/$EXC_FOLDER_PREFIX$EXC_NAME"
         fi
-        #fetch_exc "$EXC_NUM" "$2/$EXC_FOLDER_PREFIX$EXC_NAME"
+        fetch_exc "$EXC_NUM" "$2/$EXC_FOLDER_PREFIX$EXC_NAME"
     done
     rm "$2.html"
 
