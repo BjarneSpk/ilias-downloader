@@ -20,12 +20,6 @@ Download files from your Ilias courses with just one click.
 
 ## How to use
 
-### Preparations
-
-1. Bash
-2. `grep` with Perl Regex support
-   - For macOS: Install GNU Grep (ggrep) and alias grep to ggrep.
-
 ### Configuration
 
 The script `IliasDownloadInit.sh` needs to be configured **once** before the first execution.

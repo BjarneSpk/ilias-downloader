@@ -98,8 +98,8 @@ check_credentials() {
 }
 
 check_grep_availability() {
-    echo "abcde" | grep -oP "abc\Kde"
-    GREP_AV=$(echo "$?")
+    echo "abcde" | grep -oP "abc\Kde" >/dev/null 2>&1
+    GREP_AV=$?
 }
 
 do_grep() {
@@ -107,9 +107,13 @@ do_grep() {
         grep -oP "$1"
     else
         # Workaround if no Perl regex supported
-        local prefix=$(echo "$1" | awk -F: 'BEGIN {FS="\\K"}{print $1}')
-        local match=$(echo "$1" | awk -F: 'BEGIN {FS="\\K"}{print $2}')
-        grep -o "$prefix$match" | grep -o "$match"
+        if [[ "$1" =~ \\K ]]; then
+            local prefix=$(echo "$1" | sed 's/\\K.*//')
+            local match=$(echo "$1" | sed 's/.*\\K//')
+            grep -o "$prefix$match" | grep -o "$match"
+        else
+            grep -o "$1"
+        fi
     fi
 }
 
@@ -170,14 +174,14 @@ function fetch_exc {
 
     local CONTENT_PAGE=$(ilias_request "ilias.php?baseClass=ilexercisehandlergui&cmdNode=cn:ns&cmdClass=ilObjExerciseGUI&cmd=showOverview&ref_id=$1&mode=all&from_overview=1")
     echo "$CONTENT_PAGE" >"$1.html"
-    local EXERCISES=$(grep -oP "<h4 class=\"il-item-title\">.?<a href=[^>]*ref_id=$1[^\"]*&ass_id=\K[0-9]*" "$1.html")
+    local EXERCISES=$(do_grep "<h4 class=\"il-item-title\">.?<a href=[^>]*ref_id=$1[^\"]*&ass_id=\K[0-9]*" "$1.html")
     rm "$1.html"
     for exc in $EXERCISES; do
         local CONTENT_PAGE=$(ilias_request "go/exc/$1/${exc}")
         echo $CONTENT_PAGE >"$1-${exc}.html"
-        local ITEMS=$(grep -oP "ilias.php[^>]*>Download" "$1-${exc}.html")
+        local ITEMS=$(do_grep "ilias.php[^>]*>Download" "$1-${exc}.html")
         local ITEMS=$(echo "$ITEMS" | do_grep "ilias.php[^\"]*")
-        local EXC_NAME=$(grep -oP "<div class=\"panel-title\">.?<h2>\K[^<]*" "$1-${exc}.html" | tr -d '[:blank:]')
+        local EXC_NAME=$(do_grep "<div class=\"panel-title\">.?<h2>\K[^<]*" "$1-${exc}.html" | tr -d '[:blank:]')
         rm "$1-${exc}.html"
         for file in $ITEMS; do
             local FILENAME=$(echo $file | do_grep "&file=\K.*")
@@ -235,9 +239,9 @@ function fetch_folder {
     # Fetch Subfolders recursive (async)
     # somewhat ugly but for some reason piping didn't work
     echo $CONTENT_PAGE >"$2.html"
-    local FOLDERS=$(grep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/fold/[0-9]*" "$2.html")
+    local FOLDERS=$(do_grep "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/fold/[0-9]*" "$2.html")
     for folder in $FOLDERS; do
-        local FOLDER_NAME=$(grep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}${folder}\"[^>]*>\K[^<]*" "$2.html" | tr -d '[:blank:]')
+        local FOLDER_NAME=$(do_grep "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}${folder}\"[^>]*>\K[^<]*" "$2.html" | tr -d '[:blank:]')
 
         # Replace / by - character
         local FOLDER_NAME=$(echo "${FOLDER_NAME//\//-}" | head -1)
@@ -250,17 +254,17 @@ function fetch_folder {
     done
 
     # Files
-    local FILES=$(grep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/file/[0-9]*/download" "$2.html")
+    local FILES=$(do_grep "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/file/[0-9]*/download" "$2.html")
     for file in $FILES; do
         local DO_DOWNLOAD=1
         local NUMBER=$(echo "$file" | do_grep "[0-9]*")
         local ECHO_MESSAGE="[$1-$NUMBER]"
 
         # find the box around the file we are processing.
-        local ITEM=$(grep -oP "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}${file}.*<div style=\"clear:both;\"></div>")
+        local ITEM=$(do_grep "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}${file}.*<div style=\"clear:both;\"></div>")
         # extract version information from file. (Might be empty)
         # TODO not working
-        local VERSION=$(echo "$ITEM" | grep -o -P '(?<=<span class=\"il_ItemProperty\"> ).*?(?=&nbsp;&nbsp;</span>.*)' "$2.html") | sed -n '3p'
+        local VERSION=$(echo "$ITEM" | do_grep '(?<=<span class=\"il_ItemProperty\"> ).*?(?=&nbsp;&nbsp;</span>.*)' "$2.html") | sed -n '3p'
         # build fileId
         local FILEID=$(echo "$file $VERSION" | xargs)
 
@@ -317,10 +321,10 @@ function fetch_folder {
 
     # Exercises
 
-    local ITEMS=$(grep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/exc/[0-9]*" "$2.html")
+    local ITEMS=$(do_grep "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/exc/[0-9]*" "$2.html")
 
     for exc in $ITEMS; do
-        local EXC_NAME=$(grep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}${exc}\"[^>]*>\K[^<]*" "$2.html" | tr -d '[:blank:]')
+        local EXC_NAME=$(do_grep "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}${exc}\"[^>]*>\K[^<]*" "$2.html" | tr -d '[:blank:]')
 
         # Replace / character
         local EXC_NAME=${EXC_NAME//\//-}
