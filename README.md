@@ -20,6 +20,10 @@ Download files from your Ilias courses with just one click.
 
 ## How to use
 
+### Prerequisites
+
+- Install [ripgrep](https://github.com/BurntSushi/ripgrep).
+
 ### Configuration
 
 The script `IliasDownloadInit.sh` needs to be configured **once** before the first execution.
