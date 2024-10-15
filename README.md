@@ -17,11 +17,14 @@ Download files from your Ilias courses with just one click.
 :heavy_check_mark: Supports Ilias 9!
 
 :heavy_check_mark: Supports Linux and macOS.
+
 ## How to use
 
 ### Preparations
 
 1. Bash
+2. `grep` with Perl Regex support
+   - For macOS: Install GNU Grep (ggrep) and alias grep to ggrep.
 
 ### Configuration
 
