@@ -1,35 +1,33 @@
 # Ilias Downloader Uni Stuttgart
 
-Lade die Dateien aus deinen Ilias-Kursen mit nur einem Klick herunter.
+Download files from your Ilias courses with just one click.
 
 ## Features
 
-:heavy_check_mark: Synchronisierung von Ilias-Kursen oder Ilias-Ordnern in einem beliebigen Ordner
+:heavy_check_mark: Synchronize Ilias courses or Ilias folders to any directory
 
-:heavy_check_mark: Synchronisierung von Unterordnern der angegebenen Ilias-Kurse/Ordner
+:heavy_check_mark: Synchronize subfolders of the specified Ilias courses/folders
 
-:heavy_check_mark: Download von Dateien
+:heavy_check_mark: Download files
 
-:heavy_check_mark: Download von Übungsaufgaben (Abgabeübungen)
+:heavy_check_mark: Download exercises (submission tasks)
 
-:heavy_check_mark: Bei Datei-Aktualisierungen im Ilias wird die lokale Kopie umbenannt & die Datei erneut heruntergeladen.
+:heavy_check_mark: When files are updated on Ilias, the local copy is renamed, and the file is downloaded again.
 
 :heavy_check_mark: Supports Ilias 9!
 
+:heavy_check_mark: Supports Linux and macOS.
 ## How to use
 
-### Vorbereitungen
+### Preparations
 
 1. Bash
-2. grep mit Perl Regex-Support
-   - macOS: GNU Grep (ggrep) installieren
-   - Linux: ggrep in IliasDownload.sh zu grep refactoren
 
-### Konfiguration
+### Configuration
 
-Das Script `IliasDownloadInit.sh` muss vor der ersten Ausfürhung **einmalig** konfiguriert werden.
+The script `IliasDownloadInit.sh` needs to be configured **once** before the first execution.
 
-Im oberen Teil müssen **Benutzername und Passwort für Ilias** eingetragen werden. (Zeile 5)
+At the top of the file, you need to enter your **Ilias username and password** (Line 5).
 
 ```shell
 # Enter ILIAS username and password here
@@ -38,14 +36,14 @@ ILIAS_USERNAME="st12345"
 ILIAS_PASSWORD="password"
 ```
 
-Im weiteren Verlauf des Scripts muss das **Basis-Verzeichnis** festgelegt werden, in das alle Ilias-Unterlagen heruntergeladen werden sollen.
+Further down in the script, you need to set the **base directory** where all Ilias materials should be downloaded.
 
 ```shell
 # Preset your Homefolder
 MY_STUDIES_FOLDER="/E/IliasTest"
 ```
 
-Danach müssen alle **Ilias-Kurse oder Ilias-Ordner** eingetragen werden, die heruntergeladen werden sollen. Zu der Kurs- oder Ordner-Nummer von Ilias muss jeweils ein lokales Verzeichnis angegeben werden. Es empiehlt sich die Verwendung von absoluten Pfaden und dem Basis-verzeichnis.
+Next, you need to enter all **Ilias courses or Ilias folders** that you want to download. You need to specify the Ilias course or folder number and a corresponding local directory. It is recommended to use absolute paths and the base directory.
 
 ```shell
 # Take the id of the folder/course out of the URL, e.g.
@@ -64,12 +62,12 @@ Danach müssen alle **Ilias-Kurse oder Ilias-Ordner** eingetragen werden, die he
 # You can download the whole course or just specific folders from a course.
 # Copy for every course/folder you want to download
 # Modify here
-fetch_folder "crs/3633981" "$MY_STUDIES_FOLDER/Modellierung"
+fetch_folder "crs/3633981" "$MY_STUDIES_FOLDER/Modelling"
 ```
 
-Anmerkung: Die hier eingetragenen Download-Ordner müssen existieren. Falls der Download-Ordner nicht existiert, wird das Skript keine Dateien herunterladen. Dies dient zum Schutz vor falschen Konfigurationen. (Eventuelle Unterordner im Ilias-Kurs/Ilias-Ordner werden beim Synchronisieren automatisch erstellt.)
+**Important**: The specified download folders must exist. If the download folder does not exist, the script will not download any files. This is to prevent incorrect configurations. (Any subfolders in the Ilias course/folder will be automatically created during synchronization.)
 
-### Ausführung
+### Execution
 
 ```sh
 ./IliasDownloadInit.sh
@@ -77,42 +75,40 @@ Anmerkung: Die hier eingetragenen Download-Ordner müssen existieren. Falls der 
 
 ## FAQ
 
-#### Es werden keine Dateien heruntergeladen. Was mache ich falsch?
+#### No files are being downloaded. What am I doing wrong?
 
-Die Gründe können vielfältig sein. Bitte prüfe, ob ...
+There can be several reasons for this. Please check if ...
 
-- die im `IliasDownloadInit.sh` angegebenen Verzeichnisse existieren. (Das Script lädt nur in vorhandene Verzeichnisse herunter)
-- Benutzername und Password korrekt sind. Falls das Passwort exotische Sonderzeichen wie `"`, `$`, `"` oder `\` enthält, müssen diese durch ein vorgestelltes Backslash `\` escaped werden.
-- das `IliasDownload.sh` Script für deine Uni konfiguriert ist.
+- the directories specified in `IliasDownloadInit.sh` exist. (The script only downloads to existing directories.)
+- your username and password are correct. If the password contains special characters like `"`, `$`, `"` or `\`, these need to be escaped by preceding them with a backslash `\`.
+- the `IliasDownload.sh` script is configured for your university.
 
-#### Welche Bedeutung hat die Datei `.il-history`?
+#### What is the purpose of the `.il-history` file?
 
-Das Script speichert sich in dieser Datei welche Dokumente bereits heruntergeladen wurden. Wenn du diese Datei löschst, werden die Dokumente in diesem Ordner erneut heruntergeladen.
-Der Name dieser Datei kann mit der Variable `HISTORY_FILE` in dem Script `IliasDownloadInit.sh` geändert werden.
+The script saves which documents have already been downloaded in this file. If you delete this file, the documents in that folder will be downloaded again.
+The name of this file can be changed with the `HISTORY_FILE` variable in the `IliasDownloadInit.sh` script.
 
-#### Einzelne Dateien werden nicht heruntergeladen.
+#### Individual files are not being downloaded.
 
-Ein bekanntes Problem entsteht durch zulange Dateinamen. Der Dateiname inklusive Pfad darf maximal 255 (?) Zeichen lang sein. Versuche im `IliasDownloadInit.sh` kürzere Pfade für deine Ordner anzugeben.
+This is a known issue that occurs due to overly long file names. The filename, including the path, must be a maximum of 255 (?) characters long. Try specifying shorter paths in `IliasDownloadInit.sh` for your folders.
 
-## Roadmap (feel free to contribute)
+## Roadmap
 
-- Animation erstellen, die Funktionsweise des Scripts zeigt.
-- Passwort nicht im Skript hinterlegen, sondern mit Eingabeaufforderung.
-- Falls gewünscht, Nutzername und Passwort in `.credentials` Datei abspeichern.
-- Herunterladen der Übungsaufgaben (Übungsbücher `_lm_<id>.html`) (Sowie Links aus den Übungsaufgaben)
-- Anzahl der heruntergeladenenen/fehlgeschlagenenen Dateien korrigieren. (Aufgrund der parallelen Downloads falsch.)
-- Herunterladen von verlinkten Videos
-- Verknüpfung "Online anzeigen" erstellen
-- Konfiguration für weitere Unis hinzufügen
-- Hinweis einbauen, wenn es eine neue Version gibt.
-- Zu lange Ilias-Dateinamen hashen, damit Datei dennoch heruntergeladen werden kann.
+- Create an animation that demonstrates how the script works.
+- Do not store the password in the script but use a prompt instead.
+- Optionally save the username and password in a `.credentials` file.
+- Download exercises (exercise books `_lm_<id>.html`) (including links from exercises).
+- Fix the count of downloaded/failed files. (Due to parallel downloads, this count is incorrect.)
+- Download linked videos.
+- Create a shortcut for "View Online".
+- Add configuration for other universities.
+- Add a notification if there is a new version.
+- Hash long Ilias filenames so that files can still be downloaded.
 
 ## Disclaimer
 
-Dies ist kein offizielles Tool der gelisteten Bildungseinrichtungen oder von [Ilias](https://www.ilias.de/) selbst. Ich kann die Einhaltung der gegebenen Richtlinien seitens Ilias oder der jeweiligen Bildungseinrichtung nicht prüfen. Die Haftung liegt ausschließlich bei dir. Dieses nützliche Script wird bei Benutzung in kürzester Zeit viele Anfragen an den Ilias Server deiner Bildungseinrichtung stellen. Dies kann unter Umständen zur Überlastung führen. (Und könnte deshalb von deiner Bildungseinrichtung nicht gewünscht sein.)
+This is not an official tool of the listed educational institutions or [Ilias](https://www.ilias.de/) itself. I cannot verify compliance with the given guidelines from Ilias or the respective institution. You are solely responsible. This useful script will send many requests to the Ilias server of your institution in a short time. This could potentially lead to overload (and may not be desired by your institution).
 
 ## Credits
 
 https://github.com/digitalshow/IliasDownload
-
-(Ich habe lediglich ein paar Dinge geändert, damit das wundervolle Skript läuft.)

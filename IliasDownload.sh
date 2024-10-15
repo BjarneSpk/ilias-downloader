@@ -32,7 +32,7 @@ ILIAS_HOME="ilias.php?baseClass=ilDashboardGUI&cmd=jumpToSelectedItems"
 ILIAS_LOGOUT="logout.php?lang=de"
 ILIAS_EXC_BUTTON_DESC="Download"
 
-# Prefix für lokalen Ordernamen von Übungen
+# Prefix for local folder name to store exercise materials in
 EXC_FOLDER_PREFIX="exc"
 
 # DON'T TOUCH FROM HERE ON
@@ -285,7 +285,7 @@ function fetch_folder {
         if [ $DO_DOWNLOAD -eq 1 ]; then
             local FILENAME=$(get_filename "$file")
 
-            # Prüfen, ob lokale Datei mit dem Namen existiert. Falls ja, muss diese umbenannt werden. (Kann passieren, wenn Dateien im Ilias nicht aktualisiert, sondern gelöscht und neu hochgeladen werden.)
+            ## Check if a local file with the same name exists. If so, it must be renamed. (This can happen when files on Ilias are not updated but deleted and re-uploaded.)
             if [[ -f "$FILENAME" ]]; then
                 local ECHO_MESSAGE="$ECHO_MESSAGE $FILENAME new"
                 local PART_NAME="${FILENAME%.*}"
@@ -315,7 +315,7 @@ function fetch_folder {
         echo "$ECHO_MESSAGE"
     done
 
-    # Übungen
+    # Exercises
 
     local ITEMS=$(ggrep -oP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/exc/[0-9]*" "$2.html")
 
