@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # IliasDownload.sh: A download script for ILIAS, an e-learning platform.
 # Copyright (C) 2016 - 2018 Ingo Koinzer
@@ -24,16 +24,8 @@ if [ -z "$COOKIE_PATH" ]; then
     COOKIE_PATH=/tmp/ilias-cookies.txt
 fi
 
-# Config for Uni Stuttgart
-ILIAS_URL="https://ilias3.uni-stuttgart.de/"
-ILIAS_PREFIX="Uni_Stuttgart"
-ILIAS_LOGIN_GET="login.php?client_id=Uni_Stuttgart&cmd=force_login&lang=en"
-ILIAS_HOME="ilias.php?baseClass=ilDashboardGUI&cmd=jumpToSelectedItems"
-ILIAS_LOGOUT="logout.php?lang=de"
-ILIAS_EXC_BUTTON_DESC="Download"
-
-# Prefix for local folder name to store exercise materials in
-EXC_FOLDER_PREFIX="exc"
+# Load env-variables from config
+. .config
 
 # DON'T TOUCH FROM HERE ON
 
@@ -59,11 +51,11 @@ check_config() {
         echo "[Config] ILIAS_PREFIX=$ILIAS_PREFIX"
     fi
 
-    if [[ -z "${ILIAS_LOGIN_GET}" ]]; then
+    if [[ -z "${ILIAS_LOGIN_POST}" ]]; then
         echo "[Config] Ilias Login Pfad nicht gesetzt."
         exit 12 # terminate with error - ilias login get missing
     else
-        echo "[Config] ILIAS_LOGIN_GET=$ILIAS_LOGIN_GET"
+        echo "[Config] ILIAS_LOGIN_POST=$ILIAS_LOGIN_POST"
     fi
 
     if [[ -z "${ILIAS_HOME}" ]]; then
@@ -125,10 +117,7 @@ do_login() {
     if [ -f $COOKIE_PATH ]; then
         rm $COOKIE_PATH
     fi
-    echo "Getting form url..."
-    local LOGIN_PAGE=$(ilias_request "$ILIAS_LOGIN_GET")
 
-    ILIAS_LOGIN_POST="ilias.php?baseClass=ilstartupgui&cmd=post&fallbackCmd=doStandardAuthentication&lang=de&client_id=Uni_Stuttgart"
     echo "Sending login information..."
 
     curl -s -L -c "$COOKIE_PATH" -X POST "$ILIAS_URL$ILIAS_LOGIN_POST" \
@@ -142,7 +131,6 @@ do_login() {
     fi
 
     echo "Checking if logged in..."
-    ilias_request "$ILIAS_HOME" | echo
     local ITEMS=$(ilias_request "$ILIAS_HOME" | do_grep "ilDashboardMainContent")
     if [ -z "$ITEMS" ]; then
         echo "Home page check failed. Is your login information correct?"
@@ -306,13 +294,11 @@ function fetch_folder {
                 echo "$FILEID" >>"$HISTORY_FILE"
                 ((ILIAS_DL_COUNT++))
                 local ECHO_MESSAGE="$ECHO_MESSAGE done"
-                ILIAS_DL_NAMES="${ILIAS_DL_NAMES} - ${FILENAME}
-"
+                ILIAS_DL_NAMES="${ILIAS_DL_NAMES} - ${FILENAME}\n"
             else
                 local ECHO_MESSAGE="$ECHO_MESSAGE failed: $RESULT"
                 ((ILIAS_FAIL_COUNT++))
-                ILIAS_DL_FAILED_NAMES="${ILIAS_DL_NAMES} - ${FILENAME} (failed: $RESULT)
-"
+                ILIAS_DL_FAILED_NAMES="${ILIAS_DL_NAMES} - ${FILENAME} (failed: $RESULT)\n"
             fi
         fi
 
@@ -344,11 +330,11 @@ function fetch_folder {
 function print_stat() {
     echo
     echo "Downloaded $ILIAS_DL_COUNT new files, ignored $ILIAS_IGN_COUNT files, $ILIAS_FAIL_COUNT failed."
-    echo "$ILIAS_DL_NAMES"
+    printf "$ILIAS_DL_NAMES"
 
     if [ ! -z "$ILIAS_DL_FAILED_NAMES" ]; then
         echo "Following downloads failed:"
-        echo "$ILIAS_DL_FAILED_NAMES"
+        printf "$ILIAS_DL_FAILED_NAMES"
     fi
 }
 
