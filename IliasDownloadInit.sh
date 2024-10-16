@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-# Enter ILIAS username and password here
-# Modify here
-ILIAS_USERNAME="st123456"
-ILIAS_PASSWORD="12345689"
-
-# Choose a relative path to store the file in every data directory or an absolute path for one single file
-# Keep it like this if you're not sure
-HISTORY_FILE=.il-history
-
 # Don't modify
 source IliasDownload.sh
 
@@ -29,9 +20,6 @@ do_login
 # You need to use absolute paths for local folders!
 #
 # You can download the whole course or just specific folders from a course.
-
-# Preset your Homefolder
-MY_STUDIES_FOLDER="/A/B/C"
 
 # Copy for every course/folder you want to download
 # Modify here
