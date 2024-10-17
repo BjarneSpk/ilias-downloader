@@ -44,13 +44,6 @@ check_config() {
         echo "[Config] ILIAS_URL=$ILIAS_URL"
     fi
 
-    if [[ -z "${ILIAS_PREFIX}" ]]; then
-        echo "[Config] Ilias Prefix nicht gesetzt."
-        exit 11 # terminate with error - ilias prefix missing
-    else
-        echo "[Config] ILIAS_PREFIX=$ILIAS_PREFIX"
-    fi
-
     if [[ -z "${ILIAS_LOGIN_POST}" ]]; then
         echo "[Config] Ilias Login Pfad nicht gesetzt."
         exit 12 # terminate with error - ilias login get missing

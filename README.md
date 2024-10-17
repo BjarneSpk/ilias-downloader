@@ -26,9 +26,24 @@ Download files from your Ilias courses with just one click.
 
 ### Configuration
 
-The script `IliasDownloadInit.sh` needs to be configured **once** before the first execution.
+Your login data, the URLs and routes of Ilias for your institution should be stored in a `.config` file in the same folder as this repository.
 
-At the top of the file, you need to enter your **Ilias username and password** (Line 5).
+These are the mandatory fields:
+
+- ILIAS_USERNAME &arr self-explanatory.
+- ILIAS_PASSWORD &arr self-explanatory.
+- MY_STUDIES_FOLDER &arr the absolute path to the folder where the downloaded files will be stored on your local machine.
+- ILIAS_URL &arr the URL of the Ilias server of your institution.
+- ILIAS_LOGIN_POST &arr the post route of the login form.
+- ILIAS_HOME &arr the route for the Ilias homepage.
+- ILIAS_LOGOUT &arr the route for the Ilias logout.
+- EXC_FOLDER_PREFIX &arr Prefix for the folder where the exercise files will be stored on your local device.
+- HISTORY_FILE=.il-history &arr name of the log file tracking the already downloaded files.
+
+If you are **not** studying at University of Stuttgart, you have to change the URLs and routes to match your Ilias distribution.
+If you are studying at University of Stuttgart, you only have to rename the `.config.sample` file.
+
+At the top of the file, you need to enter your **Ilias username and password**.
 
 ```shell
 # Enter ILIAS username and password here
@@ -37,14 +52,14 @@ ILIAS_USERNAME="st12345"
 ILIAS_PASSWORD="password"
 ```
 
-Further down in the script, you need to set the **base directory** where all Ilias materials should be downloaded.
+Further down, you need to set the **base directory** where all Ilias materials should be downloaded.
 
 ```shell
 # Preset your Homefolder
 MY_STUDIES_FOLDER="/E/IliasTest"
 ```
 
-Next, you need to enter all **Ilias courses or Ilias folders** that you want to download. You need to specify the Ilias course or folder number and a corresponding local directory. It is recommended to use absolute paths and the base directory.
+Next, you need to enter all **Ilias courses or Ilias folders** that you want to download in `IliasDownloadInit.sh`. You need to specify the Ilias course or folder number and a corresponding local directory. It is recommended to use absolute paths and the base directory.
 
 ```shell
 # Take the id of the folder/course out of the URL, e.g.
@@ -82,7 +97,7 @@ There can be several reasons for this. Please check if ...
 
 - the directories specified in `IliasDownloadInit.sh` exist. (The script only downloads to existing directories.)
 - your username and password are correct. If the password contains special characters like `"`, `$`, `"` or `\`, these need to be escaped by preceding them with a backslash `\`.
-- the `IliasDownload.sh` script is configured for your university.
+- the config file is configured for your university.
 
 #### What is the purpose of the `.il-history` file?
 

@@ -12,7 +12,6 @@ HISTORY_FILE=.il-history
 
 # Config for Uni Stuttgart
 ILIAS_URL="https://ilias3.uni-stuttgart.de/"
-ILIAS_PREFIX="Uni_Stuttgart"
 ILIAS_LOGIN_POST="ilias.php?baseClass=ilstartupgui&cmd=post&fallbackCmd=doStandardAuthentication&lang=de&client_id=Uni_Stuttgart"
 ILIAS_HOME="ilias.php?baseClass=ilDashboardGUI&cmd=jumpToSelectedItems"
 ILIAS_LOGOUT="logout.php?lang=de"
