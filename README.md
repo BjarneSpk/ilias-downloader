@@ -1,4 +1,4 @@
-# Ilias Downloader Uni Stuttgart
+# Ilias Downloader
 
 Download files from your Ilias courses with just one click.
 
