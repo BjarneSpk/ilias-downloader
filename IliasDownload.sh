@@ -215,14 +215,14 @@ function fetch_folder {
     done
 
     # Files
-    local FILES=$(rg -oNP "<h[34] class=\"il_ContainerItemTitle\">.?<a href=\"${ILIAS_URL}\Kgo/file/[0-9]*/download" "$2.html")
+    local FILES=$(rg -oNP "<a class=\"il_ContainerItemTitle\" href=\"${ILIAS_URL}\K.*?\"" "$2.html")
     for file in $FILES; do
         local DO_DOWNLOAD=1
         local NUMBER=$(echo "$file" | rg -oNP "[0-9]*")
         local ECHO_MESSAGE="[$1-$NUMBER]"
 
         # find the box around the file we are processing.
-        local ITEM=$(rg -oNP "<h[34] class=\"il_ContainerItemTitle\"><a href=\"${ILIAS_URL}${file}.*<div style=\"clear:both;\"></div>")
+        local ITEM=$(rg -oNP "<h[34] class=\"il_ContainerItemTitle\"><a class=\"il_ContainerItemTitle\" href=\"${ILIAS_URL}${file}.*<div style=\"clear:both;\"></div>")
         # extract version information from file. (Might be empty)
         # TODO not working
         local VERSION=$(echo "$ITEM" | rg -oNP '(?<=<span class=\"il_ItemProperty\"> ).*?(?=&nbsp;&nbsp;</span>.*)' "$2.html") | sed -n '3p'
@@ -311,6 +311,5 @@ function print_stat() {
     fi
 }
 
-check_grep_availability
 check_config
 check_credentials
